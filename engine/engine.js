@@ -12,6 +12,7 @@ class Engine {
     this.keys = {};
 
     this.running = false;
+    this.paused = false;
 
     // html options
     this.options = {

@@ -5,8 +5,8 @@ const frag = `#version 300 es
     uniform float time;
     uniform int frame;
 
-    const int MAX_BOUNCES = 100;
-    const int RENDERS_PER_FRAME = 1;
+    const int MAX_BOUNCES = 8;
+    const int RENDERS_PER_FRAME = 16;
 
     const float NUDGE_DIST = 0.01;
     const float MAX_DIST = 10000.0;
@@ -52,20 +52,20 @@ const frag = `#version 300 es
         hit_info.mat = mat;
     }
 
-    int hash(inout int seed) {
-        seed = int(seed ^ int(61)) ^ int(seed >> int(16));
-        seed *= int(9);
+    uint hash(inout uint seed) {
+        seed = uint(seed ^ uint(61)) ^ uint(seed >> uint(16));
+        seed *= uint(9);
         seed = seed ^ (seed >> 4);
-        seed *= int(0x27d4eb2d);
+        seed *= uint(0x27d4eb2d);
         seed = seed ^ (seed >> 15);
         return seed;
     }
     
-    float rand_float(inout int seed) {
+    float rand_float(inout uint seed) {
         return float(hash(seed)) / 4294967296.0;
     }
     
-    vec3 rand_vector(inout int seed) {
+    vec3 rand_vector(inout uint seed) {
         float z = rand_float(seed) * 2.0 - 1.0;
         float a = rand_float(seed) * 2.0 * PI;
         float r = sqrt(1.0 - z * z);
@@ -135,7 +135,7 @@ const frag = `#version 300 es
             if (u < 0.0) return false;
             float w = scalar_triple(pq, pb, pa);
             if (w < 0.0) return false;
-            float denom = 1.0 / (u+v+w);
+            float denom = 1.0 / (u + v + w);
             u *= denom;
             v *= denom;
             w *= denom;
@@ -147,7 +147,7 @@ const frag = `#version 300 es
             float w = scalar_triple(pq, pa, pd);
             if (w < 0.0) return false;
             v = -v;
-            float denom = 1.0 / (u+v+w);
+            float denom = 1.0 / (u + v + w);
             u *= denom;
             v *= denom;
             w *= denom;
@@ -171,7 +171,7 @@ const frag = `#version 300 es
         return false;
     }
 
-    vec3 raytrace(in Ray ray, inout int seed) {
+    vec3 raytrace(in Ray ray, inout uint seed) {
 
         // initialize color and ray info
         vec3 color = vec3(0.0, 0.0, 0.0);
@@ -257,7 +257,7 @@ const frag = `#version 300 es
 
     void mainImage(out vec4 fragColor, in vec2 fragCoord) {
         // random seed
-        int seed = int(int(fragCoord.x) * int(1973) + int(fragCoord.y) * int(9277) + int(frame) * int(26699));
+        uint seed = uint(uint(fragCoord.x) * uint(1973) + uint(fragCoord.y) * uint(9277) + uint(frame) * uint(26699));
 
         // normalized pixel coordinates (from 0 to 1)
         vec2 uv = fragCoord/resolution.xy;
