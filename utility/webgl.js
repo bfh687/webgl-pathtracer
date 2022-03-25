@@ -35,7 +35,7 @@ const compile = (engine, gl) => {
 
   // check for linker errors
   if (!gl.getProgramParameter(engine.program, gl.LINK_STATUS)) {
-    console.error("error linking program", gl.getProgramInfoLog(program));
+    console.error("error linking program", gl.getProgramInfoLog(engine.program));
     return;
   }
 
@@ -52,6 +52,7 @@ const compile = (engine, gl) => {
   // uniform location(s)
   engine.res_location = gl.getUniformLocation(engine.program, "resolution");
   engine.time_location = gl.getUniformLocation(engine.program, "time");
+  engine.frame_location = gl.getUniformLocation(engine.program, "frame");
 
   // handle position buffer
   engine.pos_buffer = gl.createBuffer();
@@ -74,6 +75,7 @@ const render = (engine, gl) => {
   // set uniform values
   gl.uniform2f(engine.res_location, gl.canvas.width, gl.canvas.height);
   gl.uniform1f(engine.time_location, engine.timer.time);
+  gl.uniform1i(engine.frame_location, engine.timer.frame);
 
   // render
   gl.drawArrays(gl.TRIANGLES, 0, 6);

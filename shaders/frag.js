@@ -1,10 +1,11 @@
-const frag = `
+const frag = `#version 300 es
     precision highp float;
 
     uniform vec2 resolution;
     uniform float time;
+    uniform int frame;
 
-    const int MAX_BOUNCES = 8;
+    const int MAX_BOUNCES = 100;
     const int RENDERS_PER_FRAME = 1;
 
     const float NUDGE_DIST = 0.01;
@@ -51,11 +52,20 @@ const frag = `
         hit_info.mat = mat;
     }
 
-    float rand_float(vec2 seed) {
-        return fract(sin(dot(seed, vec2(12.9898, 78.233))) * 43758.5453);
+    int hash(inout int seed) {
+        seed = int(seed ^ int(61)) ^ int(seed >> int(16));
+        seed *= int(9);
+        seed = seed ^ (seed >> 4);
+        seed *= int(0x27d4eb2d);
+        seed = seed ^ (seed >> 15);
+        return seed;
     }
-
-    vec3 rand_vector(vec2 seed) {
+    
+    float rand_float(inout int seed) {
+        return float(hash(seed)) / 4294967296.0;
+    }
+    
+    vec3 rand_vector(inout int seed) {
         float z = rand_float(seed) * 2.0 - 1.0;
         float a = rand_float(seed) * 2.0 * PI;
         float r = sqrt(1.0 - z * z);
@@ -125,7 +135,7 @@ const frag = `
             if (u < 0.0) return false;
             float w = scalar_triple(pq, pb, pa);
             if (w < 0.0) return false;
-            float denom = 1.0 / (u + v + w);
+            float denom = 1.0 / (u+v+w);
             u *= denom;
             v *= denom;
             w *= denom;
@@ -137,7 +147,7 @@ const frag = `
             float w = scalar_triple(pq, pa, pd);
             if (w < 0.0) return false;
             v = -v;
-            float denom = 1.0 / (u + v + w);
+            float denom = 1.0 / (u+v+w);
             u *= denom;
             v *= denom;
             w *= denom;
@@ -161,7 +171,8 @@ const frag = `
         return false;
     }
 
-    vec3 raytrace(in Ray ray) {
+    vec3 raytrace(in Ray ray, inout int seed) {
+
         // initialize color and ray info
         vec3 color = vec3(0.0, 0.0, 0.0);
         vec3 throughput = vec3(1.0, 1.0, 1.0);
@@ -228,8 +239,8 @@ const frag = `
             // update ray position and calculate new ray direction
             ray_origin = point_at(ray, hit_info.dist) + hit_info.normal * NUDGE_DIST;
             
-            float specular = (rand_float(ray_origin.xy) < hit_info.mat.specular) ? 1.0 : 0.0;
-            vec3 diffuse_ray_dir = normalize(hit_info.normal.xyz + rand_vector(ray_origin.xy).xyz);
+            float specular = (rand_float(seed) < hit_info.mat.specular) ? 1.0 : 0.0;
+            vec3 diffuse_ray_dir = normalize(hit_info.normal.xyz + rand_vector(seed).xyz);
             vec3 specular_ray_dir = reflect(ray_dir, hit_info.normal);
             specular_ray_dir = normalize(mix(specular_ray_dir, diffuse_ray_dir, hit_info.mat.roughness * hit_info.mat.roughness));
             
@@ -245,6 +256,9 @@ const frag = `
     }
 
     void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+        // random seed
+        int seed = int(int(fragCoord.x) * int(1973) + int(fragCoord.y) * int(9277) + int(frame) * int(26699));
+
         // normalized pixel coordinates (from 0 to 1)
         vec2 uv = fragCoord/resolution.xy;
 
@@ -261,14 +275,23 @@ const frag = `
         // raytrace to find color of the current ray
         vec3 color = vec3(0.0);
         for (int i = 0; i < RENDERS_PER_FRAME; i++) {
-            color += raytrace(ray) / float(RENDERS_PER_FRAME);
+            color += raytrace(ray, seed) / float(RENDERS_PER_FRAME);
         }
-
+        
+        // check for shader reset
+        // bool space = (texture(iChannel2, vec2(32.5 / 256.0, 0.25)).x > 0.1);
+        
+        // average passes together
+        // vec4 last_color = texture(iChannel0, fragCoord / resolution.xy);
+        // float blend = (last_color.a == 0.0 || space) ? 1.0 : 1.0 / (1.0 + (1.0 / last_color.a));
+        // color = mix(last_color.rgb, color, blend);
+        
         // set final pixel color
         fragColor = vec4(color, 1.0);
     }
 
+    out vec4 fragColor;
     void main() {
-        mainImage(gl_FragColor, gl_FragCoord.xy);
+        mainImage(fragColor, gl_FragCoord.xy);
     }
 `;

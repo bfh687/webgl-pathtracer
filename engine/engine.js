@@ -33,7 +33,6 @@ class Engine {
 
   loop() {
     this.clock_tick = this.timer.tick();
-    console.log(this.clock_tick);
     render(this, gl);
   }
 

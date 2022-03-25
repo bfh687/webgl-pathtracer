@@ -5,3 +5,6 @@ const gl = canvas.getContext("webgl2");
 // create and start engine
 const engine = new Engine(gl);
 engine.start();
+
+console.log("WebGL version: " + gl.getParameter(gl.VERSION));
+console.log("GLSL version: " + gl.getParameter(gl.SHADING_LANGUAGE_VERSION));

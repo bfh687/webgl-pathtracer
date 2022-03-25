@@ -1,11 +1,14 @@
 class Timer {
   constructor() {
     this.time = 0;
+    this.frame = 0;
     this.max_step = 0.05;
     this.last_timestamp = 0;
   }
 
   tick() {
+    this.frame++;
+
     const current = Date.now();
     const delta = (current - this.last_timestamp) / 1000;
     this.last_timestamp = current;
