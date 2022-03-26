@@ -5,8 +5,10 @@ const frag = `#version 300 es
     uniform float time;
     uniform int frame;
 
-    const int MAX_BOUNCES = 8;
-    const int RENDERS_PER_FRAME = 16;
+    //uniform sampler2D last_frame;
+
+    const int MAX_BOUNCES = 5;
+    const int RENDERS_PER_FRAME = 8;
 
     const float NUDGE_DIST = 0.01;
     const float MAX_DIST = 10000.0;
@@ -182,7 +184,8 @@ const frag = `#version 300 es
         
         // initialize scene (spheres and their materials)
         Material light_material = Material(vec3(0.0, 0.0, 0.0), vec3(1.0, 0.9, 0.7) * 25.0, vec3(0.0), 0.0, 0.0);    
-        Quad light = Quad(vec3(-0.6, 1.28, 3.0), vec3(0.6, 1.28, 3.0), vec3(0.6, 1.28, 3.7), vec3(-0.6, 1.28, 3.7), light_material);
+        float rand = (rand_float(seed) - 0.5) / 5.0;
+        Quad light = Quad(vec3(-0.6 + rand, 1.28, 3.0), vec3(0.6 + rand, 1.28, 3.0), vec3(0.6 + rand, 1.28, 3.7), vec3(-0.6 + rand, 1.28, 3.7), light_material);
 
         // initialize walls and their materials
         Material wall_material = Material(vec3(0.7, 0.7, 0.7), vec3(0.0, 0.0, 0.0), vec3(0.0), 0.0, 0.0);
@@ -255,7 +258,7 @@ const frag = `#version 300 es
         return color;
     }
 
-    void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    void get_color(out vec4 fragColor, in vec2 fragCoord) {
         // random seed
         uint seed = uint(uint(fragCoord.x) * uint(1973) + uint(fragCoord.y) * uint(9277) + uint(frame) * uint(26699));
 
@@ -278,12 +281,9 @@ const frag = `#version 300 es
             color += raytrace(ray, seed) / float(RENDERS_PER_FRAME);
         }
         
-        // check for shader reset
-        // bool space = (texture(iChannel2, vec2(32.5 / 256.0, 0.25)).x > 0.1);
-        
         // average passes together
-        // vec4 last_color = texture(iChannel0, fragCoord / resolution.xy);
-        // float blend = (last_color.a == 0.0 || space) ? 1.0 : 1.0 / (1.0 + (1.0 / last_color.a));
+        // vec4 last_color = texture(last_frame, fragCoord / resolution.xy);
+        // float blend = (last_color.a == 0.0) ? 1.0 : 1.0 / (1.0 + (1.0 / last_color.a));
         // color = mix(last_color.rgb, color, blend);
         
         // set final pixel color
@@ -292,6 +292,6 @@ const frag = `#version 300 es
 
     out vec4 fragColor;
     void main() {
-        mainImage(fragColor, gl_FragCoord.xy);
+        get_color(fragColor, gl_FragCoord.xy);
     }
 `;

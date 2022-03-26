@@ -1,6 +1,6 @@
 const compile = (engine, gl) => {
   // set clear color of webgl, params: (r, g, b, a)
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clearColor(0.0, 0.0, 0.0, 0.0);
 
   // clear
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -58,13 +58,20 @@ const compile = (engine, gl) => {
   engine.pos_buffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, engine.pos_buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+
+  // / / / / / P I N G  P O N G  T E C H N I Q U E / / / / / //
+
+  // texture location(s)
+
+  // set active program
+  gl.useProgram(engine.program);
 };
 
 const render = (engine, gl) => {
   // set viewport size
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-  // declare program to use for webgl
+  // set active program
   gl.useProgram(engine.program);
 
   // bind position buffer
@@ -77,6 +84,24 @@ const render = (engine, gl) => {
   gl.uniform1f(engine.time_location, engine.timer.time);
   gl.uniform1i(engine.frame_location, engine.timer.frame);
 
-  // render
+  // set texture uniform
+  // gl.uniform1i(engine.texture_location, engine.texture_state);
+
+  // draw to display
   gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+  // swap buffers
+  //engine.texture_state = (engine.texture_state + 1) % 2;
+};
+
+const create_texture = (gl) => {
+  const texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+  return texture;
 };
