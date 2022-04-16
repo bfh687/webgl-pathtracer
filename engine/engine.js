@@ -1,7 +1,7 @@
 class Engine {
   constructor(gl) {
     // compile shader
-    compile(this, gl);
+    init(this, gl);
     this.gl = gl;
 
     // initialize timer
@@ -10,9 +10,6 @@ class Engine {
     // input information
     this.click = false;
     this.keys = {};
-
-    this.running = false;
-    this.paused = false;
 
     // html options
     this.options = {
@@ -34,6 +31,7 @@ class Engine {
 
   loop() {
     this.clock_tick = this.timer.tick();
+    update(this, gl);
     render(this, gl);
   }
 
