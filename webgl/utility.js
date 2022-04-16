@@ -24,17 +24,6 @@ const init = (engine, gl) => {
 
   // init frame count
   engine.scene.frame_count = 0;
-
-  // render loop
-  let then = 0;
-  function updateAndRender(now) {
-    now *= 0.001; // convert to seconds
-    then = now; // remember time for next frame
-    update(engine, gl);
-    render(engine, gl);
-    requestAnimationFrame(updateAndRender);
-  }
-  requestAnimationFrame(updateAndRender);
 };
 
 function update(engine, gl) {
