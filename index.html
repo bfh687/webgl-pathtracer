@@ -1,26 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <title>webgl-raytracer</title>
-  </head>
-  <body style="background: rgb(36, 35, 35, 0.993)">
-    <div style="text-align: center; padding-top: 70px">
-      <canvas id="canvas" width="1366" height="768" style="background: rgb(36, 35, 35)" />
-    </div>
-
-    <!-- utility -->
-    <script src="./utility/webgl.js"></script>
-
-    <!-- engine -->
-    <script src="./engine/engine.js"></script>
-    <script src="./engine/timer.js"></script>
+    <title>webgl-pathtracing</title>
 
     <!-- shaders -->
-    <script src="./shaders/vert.js"></script>
-    <script src="./shaders/frag.js"></script>
+    <script type="text/javascript" src="./shaders/render/render_frag.js" defer></script>
+    <script type="text/javascript" src="./shaders/render/render_vert.js" defer></script>
+    <script type="text/javascript" src="./shaders/pathtrace/tracer_frag.js" defer></script>
+    <script type="text/javascript" src="./shaders/pathtrace/tracer_vert.js" defer></script>
+
+    <!-- utility -->
+    <script type="text/javascript" src="./webgl/utility.js" defer></script>
+
+    <!-- engine + gpu -->
+    <script type="text/javascript" src="./engine/timer.js" defer></script>
+    <script type="text/javascript" src="./engine/engine.js" defer></script>
 
     <!-- driver -->
-    <script src="./index.js"></script>
+    <script type="text/javascript" src="index.js" defer></script>
+    
+  </head>
+  <body>
+    <body style="background: rgb(36, 35, 35, 0.993)">
+      <div style="text-align: center; padding-top: 70px">
+        <canvas id="canvas" width="512" height="512" style="background: rgb(36, 35, 35)"></canvas>
+      </div>
   </body>
 </html>
