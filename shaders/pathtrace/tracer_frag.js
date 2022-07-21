@@ -8,7 +8,7 @@ uniform sampler2D texture_1;
 uniform highp float frame;
 
 const int MAX_BOUNCES = 8;
-const int RENDERS_PER_FRAME = 32;
+const int RENDERS_PER_FRAME = 4;
 
 const float NUDGE_DIST = 0.01;
 const float MAX_DIST = 10000.0;
@@ -183,7 +183,7 @@ vec3 raytrace(in Ray ray, inout uint seed) {
     vec3 ray_dir = ray.dir;
     
     // initialize scene (spheres and their materials)
-    Material light_material = Material(vec3(0.0, 0.0, 0.0), vec3(1.0, 0.9, 0.7) * 10.0, vec3(0.0), 0.0, 0.0);    
+    Material light_material = Material(vec3(0.0, 0.0, 0.0), vec3(1.0, 0.9, 0.7) * 5.0, vec3(0.0), 0.0, 0.0);    
     float rand = (rand_float(seed) - 0.5) / 5.0;
     Quad light = Quad(vec3(-0.6 + rand, 1.28, 3.0), vec3(0.6 + rand, 1.28, 3.0), vec3(0.6 + rand, 1.28, 3.7), vec3(-0.6 + rand, 1.28, 3.7), light_material);
 
